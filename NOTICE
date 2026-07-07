@@ -1,0 +1,12 @@
+paper-shaders-swift
+
+This package is a Swift/Metal port of Paper Shaders
+(https://github.com/paper-design/shaders), licensed under the
+Apache License, Version 2.0. Shader algorithms, presets, the
+128x128 noise texture asset, the flowers test image, and the
+preprocessed image-mask resources are derived from the original work.
+
+Original NOTICE from Paper Shaders:
+
+  Powered by Paper Shaders:
+  https://shaders.paper.design

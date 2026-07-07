@@ -1,0 +1,52 @@
+name: Swift CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  swift-package:
+    name: Swift package
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Run tests
+        run: swift test
+
+      - name: Validate source archive
+        run: swift package archive-source
+
+  demo-ios:
+    name: Demo app iOS build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build demo app
+        working-directory: Examples/PaperShadersDemo
+        run: |
+          xcodebuild \
+            -project PaperShadersDemo.xcodeproj \
+            -scheme PaperShadersDemo \
+            -destination 'generic/platform=iOS Simulator' \
+            build
