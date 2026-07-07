@@ -423,7 +423,9 @@ private struct ShaderFullscreenView: View {
   let onDismiss: () -> Void
 
   var body: some View {
-    ZStack(alignment: .topTrailing) {
+    GeometryReader { proxy in
+      let overlayPadding = fullscreenOverlayPadding(for: proxy.safeAreaInsets)
+
       ShaderPreview(
         entry: entry,
         uniforms: uniforms,
@@ -433,22 +435,48 @@ private struct ShaderFullscreenView: View {
         renderOptions: renderOptions,
         renderMetrics: renderMetrics,
         onRenderMetricsChanged: onRenderMetricsChanged,
-        showsFPSHUD: showsFPSHUD,
+        showsFPSHUD: false,
         showsCaption: false
       )
-
-      Button(action: onDismiss) {
-        Image(systemName: "xmark")
-          .font(.system(size: 18, weight: .semibold))
-          .frame(width: 46, height: 46)
+      .overlay(alignment: .topTrailing) {
+        Button(action: onDismiss) {
+          Image(systemName: "xmark")
+            .font(.system(size: 18, weight: .semibold))
+            .frame(width: 46, height: 46)
+        }
+        .foregroundStyle(.white)
+        .background(.black.opacity(0.42), in: Circle())
+        .padding(.top, overlayPadding.top)
+        .padding(.trailing, overlayPadding.trailing)
+        .accessibilityLabel("Exit fullscreen")
       }
-      .foregroundStyle(.white)
-      .background(.black.opacity(0.42), in: Circle())
-      .padding(18)
-      .accessibilityLabel("Exit fullscreen")
+      .overlay(alignment: .bottomTrailing) {
+        if showsFPSHUD {
+          RenderMetricsHUD(metrics: renderMetrics)
+            .padding(.trailing, overlayPadding.trailing)
+            .padding(.bottom, overlayPadding.bottom)
+        }
+      }
     }
     .background(Color.black)
-    .ignoresSafeArea()
+  }
+
+  private func fullscreenOverlayPadding(for safeAreaInsets: EdgeInsets) -> EdgeInsets {
+    #if os(macOS)
+    EdgeInsets(
+      top: max(safeAreaInsets.top + 18, 72),
+      leading: safeAreaInsets.leading + 18,
+      bottom: max(safeAreaInsets.bottom + 18, 18),
+      trailing: max(safeAreaInsets.trailing + 18, 18)
+    )
+    #else
+    EdgeInsets(
+      top: safeAreaInsets.top + 18,
+      leading: safeAreaInsets.leading + 18,
+      bottom: safeAreaInsets.bottom + 18,
+      trailing: safeAreaInsets.trailing + 18
+    )
+    #endif
   }
 }
 
@@ -810,7 +838,8 @@ private struct ControlPanel: View {
           index: index,
           value: $uniforms[index],
           presets: entry.presets,
-          activeSliderID: $activeSliderID
+          activeSliderID: $activeSliderID,
+          dimsControlsOnSliderDrag: presentation == .overlay
         )
       }
     }
@@ -821,7 +850,7 @@ private struct ControlPanel: View {
     @ViewBuilder content: () -> Content
   ) -> some View {
     SliderFocusContainer(
-      activeSliderID: activeSliderID,
+      activeSliderID: presentation == .overlay ? activeSliderID : nil,
       controlID: id,
       content: content()
     )
@@ -909,6 +938,7 @@ private struct UniformControl: View {
   @Binding var value: UniformValue
   let presets: [ShaderCatalogEntry.Preset]
   @Binding var activeSliderID: String?
+  let dimsControlsOnSliderDrag: Bool
 
   var body: some View {
     switch value {
@@ -974,7 +1004,7 @@ private struct UniformControl: View {
     @ViewBuilder content: () -> Content
   ) -> some View {
     SliderFocusContainer(
-      activeSliderID: activeSliderID,
+      activeSliderID: dimsControlsOnSliderDrag ? activeSliderID : nil,
       controlID: id,
       content: content()
     )

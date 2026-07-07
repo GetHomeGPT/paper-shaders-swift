@@ -53,7 +53,7 @@ GitHub URL of this repository, then link either:
 In `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/AndreFrelicot/paper-shaders-swift.git", from: "0.0.1")
+.package(url: "https://github.com/AndreFrelicot/paper-shaders-swift.git", from: "0.0.2")
 ```
 
 ```swift
