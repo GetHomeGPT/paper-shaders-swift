@@ -1097,6 +1097,9 @@ private struct UniformControl: View {
     if name == "u_colorsCount" {
       return 1...10
     }
+    if name == "u_stepsPerColor" {
+      return 1...100
+    }
     if name.localizedCaseInsensitiveContains("angle") {
       return -360...360
     }
