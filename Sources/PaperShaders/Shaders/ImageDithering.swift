@@ -6,7 +6,8 @@ public enum ImageDithering {
   public static let descriptor = ShaderDescriptor(
     name: "image-dithering",
     fragmentSource: source,
-    usesImageTexture: true
+    usesImageTexture: true,
+    isAnimated: false
   )
 
   /// Options for dither type.

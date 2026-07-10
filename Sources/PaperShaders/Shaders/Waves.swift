@@ -5,7 +5,8 @@ public enum Waves {
   /// Descriptor.
   public static let descriptor = ShaderDescriptor(
     name: "waves",
-    fragmentSource: source
+    fragmentSource: source,
+    isAnimated: false
   )
 
   /// Parameters used to render this shader.

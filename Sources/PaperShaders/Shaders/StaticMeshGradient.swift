@@ -5,7 +5,8 @@ public enum StaticMeshGradient {
   /// Descriptor.
   public static let descriptor = ShaderDescriptor(
     name: "static-mesh-gradient",
-    fragmentSource: source
+    fragmentSource: source,
+    isAnimated: false
   )
 
   /// Parameters used to render this shader.

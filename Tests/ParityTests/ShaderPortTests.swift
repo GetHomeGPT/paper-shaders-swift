@@ -75,4 +75,20 @@ final class ShaderPortTests: XCTestCase {
       XCTAssertFalse(rgba.allSatisfy { $0 == 0 }, "\(testCase.descriptor.name): output is all zeros")
     }
   }
+
+  func testShadersWithoutTimeDependenciesAreStatic() {
+    let staticNames = Set(
+      ShaderCatalog.all
+        .filter { !$0.descriptor.isAnimated }
+        .map { $0.descriptor.name }
+    )
+    XCTAssertEqual(
+      staticNames,
+      Set([
+        "dot-grid", "fluted-glass", "halftone-cmyk", "halftone-dots",
+        "image-dithering", "paper-texture", "static-mesh-gradient",
+        "static-radial-gradient", "waves",
+      ])
+    )
+  }
 }

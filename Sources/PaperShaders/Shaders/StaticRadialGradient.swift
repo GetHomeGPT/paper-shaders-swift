@@ -5,7 +5,8 @@ public enum StaticRadialGradient {
   /// Descriptor.
   public static let descriptor = ShaderDescriptor(
     name: "static-radial-gradient",
-    fragmentSource: source
+    fragmentSource: source,
+    isAnimated: false
   )
 
   /// Parameters used to render this shader.

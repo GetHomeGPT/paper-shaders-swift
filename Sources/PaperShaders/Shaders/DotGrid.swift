@@ -5,7 +5,8 @@ public enum DotGrid {
   /// Descriptor.
   public static let descriptor = ShaderDescriptor(
     name: "dot-grid",
-    fragmentSource: source
+    fragmentSource: source,
+    isAnimated: false
   )
 
   /// Options for shape.

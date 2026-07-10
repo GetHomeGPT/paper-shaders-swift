@@ -7,7 +7,8 @@ public enum FlutedGlass {
     name: "fluted-glass",
     fragmentSource: source,
     usesImageTexture: true,
-    usesImageMipmaps: true
+    usesImageMipmaps: true,
+    isAnimated: false
   )
 
   /// Options for shape.

@@ -7,7 +7,8 @@ public enum PaperTexture {
     name: "paper-texture",
     fragmentSource: source,
     usesNoiseTexture: true,
-    usesImageTexture: true
+    usesImageTexture: true,
+    isAnimated: false
   )
 
   /// Parameters used to render this shader.

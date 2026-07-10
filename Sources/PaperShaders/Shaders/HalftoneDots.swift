@@ -6,7 +6,8 @@ public enum HalftoneDots {
   public static let descriptor = ShaderDescriptor(
     name: "halftone-dots",
     fragmentSource: source,
-    usesImageTexture: true
+    usesImageTexture: true,
+    isAnimated: false
   )
 
   /// Options for grid.

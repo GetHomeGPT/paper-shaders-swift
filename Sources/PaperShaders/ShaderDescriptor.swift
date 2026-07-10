@@ -18,6 +18,8 @@ public struct ShaderDescriptor: Sendable {
   public let usesImageMipmaps: Bool
   /// Resource basename for the image texture bound to fragment slot 1.
   public let imageResourceName: String
+  /// Whether the fragment output depends on the global time uniform.
+  public let isAnimated: Bool
 
   /// Creates an instance.
   public init(
@@ -27,7 +29,8 @@ public struct ShaderDescriptor: Sendable {
     usesNoiseTexture: Bool = false,
     usesImageTexture: Bool = false,
     usesImageMipmaps: Bool = false,
-    imageResourceName: String = "flowers"
+    imageResourceName: String = "flowers",
+    isAnimated: Bool = true
   ) {
     self.name = name
     self.fragmentSource = fragmentSource
@@ -36,5 +39,6 @@ public struct ShaderDescriptor: Sendable {
     self.usesImageTexture = usesImageTexture
     self.usesImageMipmaps = usesImageMipmaps
     self.imageResourceName = imageResourceName
+    self.isAnimated = isAnimated
   }
 }

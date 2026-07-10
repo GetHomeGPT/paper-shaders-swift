@@ -8,7 +8,8 @@ public enum HalftoneCmyk {
     fragmentSource: source,
     maskFragmentFunctionName: "ps_mask_fragment",
     usesNoiseTexture: true,
-    usesImageTexture: true
+    usesImageTexture: true,
+    isAnimated: false
   )
 
   /// Options for halftone type.

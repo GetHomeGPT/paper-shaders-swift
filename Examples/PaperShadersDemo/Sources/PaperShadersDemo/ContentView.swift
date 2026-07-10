@@ -575,8 +575,10 @@ private struct ControlPanel: View {
           }
         }
 
-        Section("Motion") {
-          motionControls
+        if entry.descriptor.isAnimated {
+          Section("Motion") {
+            motionControls
+          }
         }
 
         Section("Sizing") {
@@ -615,8 +617,10 @@ private struct ControlPanel: View {
               presetPicker
             }
           }
-          CompactControlSection(title: "Motion", activeSliderID: activeSliderID) {
-            motionControls
+          if entry.descriptor.isAnimated {
+            CompactControlSection(title: "Motion", activeSliderID: activeSliderID) {
+              motionControls
+            }
           }
           CompactControlSection(title: "Sizing", activeSliderID: activeSliderID) {
             sizingControls

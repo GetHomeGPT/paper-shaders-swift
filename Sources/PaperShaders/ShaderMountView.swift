@@ -12,6 +12,7 @@ import AppKit
 /// `minPixelRatio`/`maxPixelCount` resolution control.
 public final class ShaderMountView: MTKView, MTKViewDelegate {
   private let renderer: ShaderRenderer
+  private let isAnimated: Bool
 
   /// Math mode used to compile the Metal pipeline.
   public let mathMode: ShaderMathMode
@@ -78,6 +79,7 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
   private var lastMetricsUpdate = 0.0
   private var lastMetrics: ShaderRenderMetrics?
   private var wasPausedBeforeBackground = false
+  private var lastLayoutSize: CGSize = .zero
 
   /// Creates an instance.
   public init(
@@ -90,6 +92,7 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
     mathMode: ShaderMathMode = .precise
   ) throws {
     renderer = try ShaderRenderer(descriptor: descriptor, device: device, mathMode: mathMode)
+    isAnimated = descriptor.isAnimated
     self.mathMode = mathMode
     self.uniforms = uniforms
     self.sizing = sizing
@@ -110,6 +113,18 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
     fatalError("init(coder:) is not supported")
   }
 
+  #if os(iOS) || os(tvOS)
+  public override func layoutSubviews() {
+    super.layoutSubviews()
+    redrawAfterLayoutChange()
+  }
+  #elseif os(macOS)
+  public override func layout() {
+    super.layout()
+    redrawAfterLayoutChange()
+  }
+  #endif
+
   deinit {
     NotificationCenter.default.removeObserver(self)
   }
@@ -121,7 +136,9 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
   public func setFrame(_ newFrame: Double) {
     currentFrame = newFrame
     lastRenderTime = CACurrentMediaTime() * 1000
-    redrawNow()
+    if isAnimated {
+      redrawNow()
+    }
   }
 
   /// Get speed.
@@ -130,7 +147,7 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
   /// Set speed.
   public func setSpeed(_ newSpeed: Double) {
     speed = newSpeed
-    if newSpeed != 0 {
+    if isAnimated && newSpeed != 0 {
       lastRenderTime = CACurrentMediaTime() * 1000
       isPaused = false
     }
@@ -150,7 +167,7 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
     let now = CACurrentMediaTime() * 1000
     let dt = now - (lastRenderTime ?? now)
     lastRenderTime = now
-    if speed != 0 {
+    if isAnimated && speed != 0 {
       currentFrame += dt * speed
     }
 
@@ -174,7 +191,7 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
     updateRenderMetrics(frameDuration: dt, now: now)
 
     // Upstream stops the RAF loop entirely at speed 0.
-    if speed == 0 {
+    if !isAnimated || speed == 0 {
       isPaused = true
     }
   }
@@ -322,11 +339,16 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
     // macOS; draw immediately so SwiftUI control updates reach Metal in the
     // same interaction pass.
     draw()
-    // One frame will be rendered by the display link; draw(in:) re-pauses when
-    // speed == 0.
-    if isPaused {
+    // Animated shaders need the display link only while time is advancing.
+    if isAnimated && speed != 0 && isPaused {
       isPaused = false
     }
+  }
+
+  private func redrawAfterLayoutChange() {
+    guard bounds.size != lastLayoutSize else { return }
+    lastLayoutSize = bounds.size
+    redrawNow()
   }
 
   private func observeAppState() {
