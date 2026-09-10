@@ -18,6 +18,12 @@ public final class OffscreenRenderer {
     self.device = renderer.device
   }
 
+  /// Renders `image` in place of the bundled sample of an image shader
+  /// (`usesImageTexture`), or the sample again for `nil`.
+  public func setImage(_ image: CGImage?) throws {
+    try renderer.setImage(image)
+  }
+
   /// `frame` is in milliseconds, like the upstream prop (`u_time` = frame × 0.001).
   public func render(
     width: Int,

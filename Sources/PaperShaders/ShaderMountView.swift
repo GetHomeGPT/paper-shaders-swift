@@ -82,16 +82,19 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
   private var lastLayoutSize: CGSize = .zero
 
   /// Creates an instance.
+  /// `image` replaces the bundled sample of an image shader; see ``setImage(_:)``.
   public init(
     descriptor: ShaderDescriptor,
     uniforms: [UniformValue] = [],
     sizing: ShaderSizingParams = .defaultPattern,
     speed: Double = 1,
     frame startFrame: Double = 0,
+    image: CGImage? = nil,
     device: MTLDevice? = nil,
     mathMode: ShaderMathMode = .precise
   ) throws {
     renderer = try ShaderRenderer(descriptor: descriptor, device: device, mathMode: mathMode)
+    try renderer.setImage(image)
     isAnimated = descriptor.isAnimated
     self.mathMode = mathMode
     self.uniforms = uniforms
@@ -127,6 +130,14 @@ public final class ShaderMountView: MTKView, MTKViewDelegate {
 
   deinit {
     NotificationCenter.default.removeObserver(self)
+  }
+
+  /// Shows `image` in place of the bundled sample of an image shader
+  /// (`usesImageTexture`), or the sample again for `nil`. The image's own
+  /// aspect ratio drives the sizing, as the sample's does.
+  public func setImage(_ image: CGImage?) throws {
+    try renderer.setImage(image)
+    redrawNow()
   }
 
   /// Get frame.

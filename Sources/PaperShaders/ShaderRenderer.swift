@@ -21,7 +21,11 @@ final class ShaderRenderer {
   let maskPipelineState: MTLRenderPipelineState?
   let sampler: MTLSamplerState
   private(set) var noiseTexture: MTLTexture?
+  /// The image bound to fragment texture slot 1: the caller's, or the
+  /// descriptor's bundled sample until one is set.
   private(set) var imageTexture: MTLTexture?
+  private let bundledImageTexture: MTLTexture?
+  private let generatesImageMipmaps: Bool
 
   init(
     descriptor: ShaderDescriptor,
@@ -97,16 +101,42 @@ final class ShaderRenderer {
       }
       noiseTexture = try Self.loadTexture(url: url, device: device)
     }
+    generatesImageMipmaps = descriptor.usesImageMipmaps
     if descriptor.usesImageTexture {
       let resourceName = descriptor.imageResourceName
       guard let url = Bundle.module.url(forResource: resourceName, withExtension: "png") else {
         throw ShaderError.missingResource("\(resourceName).png")
       }
-      imageTexture = try Self.loadTextureWithTextureLoader(
+      bundledImageTexture = try Self.loadTextureWithTextureLoader(
         url: url,
         device: device,
         generateMipmaps: descriptor.usesImageMipmaps
       )
+    } else {
+      bundledImageTexture = nil
+    }
+    imageTexture = bundledImageTexture
+  }
+
+  /// Binds `image` to fragment texture slot 1 in place of the descriptor's
+  /// bundled sample, decoded the same way (linear RGBA, mipmaps when the
+  /// descriptor asks for them). `nil` restores the bundled sample. Only
+  /// image shaders (`usesImageTexture`) read the slot.
+  func setImage(_ image: CGImage?) throws {
+    guard let image else {
+      imageTexture = bundledImageTexture
+      return
+    }
+    let loader = MTKTextureLoader(device: device)
+    let options: [MTKTextureLoader.Option: Any] = [
+      .SRGB: false,
+      .textureUsage: MTLTextureUsage.shaderRead.rawValue,
+      .generateMipmaps: generatesImageMipmaps,
+    ]
+    do {
+      imageTexture = try loader.newTexture(cgImage: image, options: options)
+    } catch {
+      throw ShaderError.setupFailed
     }
   }
 

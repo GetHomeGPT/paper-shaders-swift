@@ -105,6 +105,20 @@ ShaderView(
 )
 ```
 
+Image shaders (`water`, `image-dithering`, …) draw a bundled sample photo by
+default. Give them your own with `ShaderMountView(descriptor:…, image:)` or
+`setImage(_:)` on `ShaderMountView` / `OffscreenRenderer`; `nil` brings the
+sample back:
+
+```swift
+let view = try ShaderMountView(
+  descriptor: Water.descriptor,
+  uniforms: Water.Params().uniforms,
+  sizing: Water.Params().sizing,
+  image: photo.cgImage
+)
+```
+
 Set `speed: 0` and pass a fixed `frame` for deterministic still renders and
 golden tests. The demo app can also copy a Swift initialization snippet for the
 current edited preset.
